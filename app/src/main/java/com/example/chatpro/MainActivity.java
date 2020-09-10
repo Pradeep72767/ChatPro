@@ -60,31 +60,23 @@ public class MainActivity extends AppCompatActivity {
         mTabLayout = findViewById(R.id.main_tabs);
         mTabLayout.setupWithViewPager(mViewPager);
 
-        if (currentUser == null)
-      {
+        if (currentUser == null) {
             SendUserToLoginActivity();
-      }
-        else
-        {
+        } else {
             VerifyUserExistance();
         }
 
     }
 
-    private void VerifyUserExistance()
-    {
+    private void VerifyUserExistance() {
         String currentUserID = mAuth.getCurrentUser().getUid();
 
         Rootref.child("Users").child(currentUserID).addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-            {
-                if((dataSnapshot.child("name").exists()))
-                {
-                    Toast.makeText(MainActivity.this,"Welcome to ChatPro", Toast.LENGTH_SHORT).show();
-                }
-                else
-                {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if ((dataSnapshot.child("name").exists())) {
+                    Toast.makeText(MainActivity.this, "Welcome to ChatPro", Toast.LENGTH_SHORT).show();
+                } else {
                     SendUserToSettingActivity();
                 }
 
@@ -98,9 +90,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart()
-
-    {
+    protected void onStart() {
         super.onStart();
 
 //        if (currentUser == null)
@@ -110,11 +100,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
     @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
+    public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
 
         getMenuInflater().inflate(R.menu.option_menu, menu);
@@ -123,25 +110,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item)
-    {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         super.onOptionsItemSelected(item);
 
-        if(item.getItemId() == R.id.log_out_option)
-        {
+        if (item.getItemId() == R.id.log_out_option) {
             mAuth.signOut();
             SendUserToLoginActivity();
         }
-        if(item.getItemId() == R.id.find_friend_option)
-        {
+        if (item.getItemId() == R.id.find_friend_option) {
 
         }
-        if(item.getItemId() == R.id.create_group_option)
-        {
+        if (item.getItemId() == R.id.create_group_option) {
             requestNewGroup();
         }
-        if(item.getItemId() == R.id.setting_option)
-        {
+        if (item.getItemId() == R.id.setting_option) {
             SendUserToSettingActivity();
         }
 
@@ -149,8 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void requestNewGroup()
-    {
+    private void requestNewGroup() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialog);
         builder.setTitle("Enter Group Name : ");
 
@@ -161,16 +142,12 @@ public class MainActivity extends AppCompatActivity {
 
         builder.setPositiveButton("create", new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i)
-            {
+            public void onClick(DialogInterface dialogInterface, int i) {
                 String groupNmme = groupNameField.getText().toString();
 
-                if (TextUtils.isEmpty(groupNmme))
-                {
-                    Toast.makeText(MainActivity.this,"Enter Group name", Toast.LENGTH_SHORT).show();
-                }
-                else
-                {
+                if (TextUtils.isEmpty(groupNmme)) {
+                    Toast.makeText(MainActivity.this, "Enter Group name", Toast.LENGTH_SHORT).show();
+                } else {
                     CreateNewGroup(groupNmme);
                 }
             }
@@ -178,24 +155,20 @@ public class MainActivity extends AppCompatActivity {
 
         builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i)
-            {
+            public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.cancel();
             }
         });
         builder.show();
     }
 
-    private void CreateNewGroup(final String groupNmme)
-    {
+    private void CreateNewGroup(final String groupNmme) {
         Rootref.child("Groups").child(groupNmme).setValue("")
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
-                    public void onComplete(@NonNull Task<Void> task)
-                    {
-                        if(task.isSuccessful())
-                        {
-                            Toast.makeText(MainActivity.this,groupNmme+" group is Created",Toast.LENGTH_SHORT).show();
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(MainActivity.this, groupNmme + " group is Created", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -203,16 +176,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void SendUserToLoginActivity()
-    {
+    private void SendUserToLoginActivity() {
         Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
         loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(loginIntent);
         finish();
     }
 
-    private void SendUserToSettingActivity()
-    {
+    private void SendUserToSettingActivity() {
         Intent settingIntent = new Intent(MainActivity.this, settingActivity.class);
         settingIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(settingIntent);
