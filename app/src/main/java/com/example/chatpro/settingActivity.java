@@ -1,9 +1,12 @@
 package com.example.chatpro;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -19,6 +22,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.util.HashMap;
 
@@ -34,6 +42,9 @@ public class settingActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private DatabaseReference RootRef;
 
+    private static final int galleryPic = 1;
+    private StorageReference userProfileImageRef;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +53,7 @@ public class settingActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         currentUserID = mAuth.getCurrentUser().getUid();
         RootRef = FirebaseDatabase.getInstance().getReference();
+        userProfileImageRef = FirebaseStorage.getInstance().getReference().child("Profile Images");
 
         InitializeFields();
 
@@ -55,7 +67,26 @@ public class settingActivity extends AppCompatActivity {
         });
 
         RetrieveUserInfo();
+
+        userProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+//               Intent galleryIntent = new Intent();
+//               galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+//               galleryIntent.setType("image/*");
+//               startActivityForResult(galleryIntent, galleryPic);
+
+                CropImage.activity()
+                        .setGuidelines(CropImageView.Guidelines.ON)
+                        .setAspectRatio(1,1)
+                        .start(settingActivity.this);
+
+            }
+        });
     }
+
+
 
 
 
@@ -66,6 +97,58 @@ public class settingActivity extends AppCompatActivity {
         userName = findViewById(R.id.set_user_name);
         userStatus = findViewById(R.id.set_status);
         userProfile = findViewById(R.id.profile_image);
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+
+//        if (requestCode==galleryPic && resultCode== Activity.RESULT_OK)
+//        {
+//            Uri Imageuri = data.getData();
+//
+//            CropImage.activity()
+//                    .setGuidelines(CropImageView.Guidelines.ON)
+//                    .setAspectRatio(1,1)
+//                    .start(this);
+//        }
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE)
+        {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+
+            if(resultCode == RESULT_OK)
+            {
+                final Uri resultUri = result.getUri();
+
+               //StorageReference filePath = userProfileImageRef.child(currentUserID + ".jpg");
+                StorageReference filePath = userProfileImageRef.child(currentUserID+".jpg");
+
+                filePath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task)
+                    {
+                        if (task.isSuccessful())
+                        {
+                            userProfile.setImageURI(resultUri);
+                            Toast.makeText(getApplicationContext(),"Profile Image Uploaded...", Toast.LENGTH_SHORT).show();
+
+                            //final StorageReference downloadedUrl = task.getResult().getStorage();
+
+
+                        }
+                        else
+                        {
+                            String message = task.getException().toString();
+                            Toast.makeText(getApplicationContext(),"Error : " + message, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+            }
+
+        }
     }
 
     private void UpdateSettings()
@@ -160,4 +243,6 @@ public class settingActivity extends AppCompatActivity {
         startActivity(mainIntent);
         finish();
     }
+
+
 }
