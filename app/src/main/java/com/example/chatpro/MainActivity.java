@@ -117,7 +117,9 @@ public class MainActivity extends AppCompatActivity {
             mAuth.signOut();
             SendUserToLoginActivity();
         }
-        if (item.getItemId() == R.id.find_friend_option) {
+        if (item.getItemId() == R.id.find_friend_option)
+        {
+            sendUserToFindFriendsActivity();
 
         }
         if (item.getItemId() == R.id.create_group_option) {
@@ -180,13 +182,19 @@ public class MainActivity extends AppCompatActivity {
         Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
         loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(loginIntent);
-        finish();
+
     }
 
     private void SendUserToSettingActivity() {
         Intent settingIntent = new Intent(MainActivity.this, settingActivity.class);
-        settingIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(settingIntent);
-        finish();
+
     }
+
+    private void sendUserToFindFriendsActivity() {
+        Intent findFriendsIntent = new Intent(MainActivity.this, FindFriendsActivity.class);
+        startActivity(findFriendsIntent);
+
+    }
+
 }

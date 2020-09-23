@@ -3,8 +3,10 @@ package com.example.chatpro;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,6 +17,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -25,6 +28,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -44,6 +48,9 @@ public class settingActivity extends AppCompatActivity {
 
     private static final int galleryPic = 1;
     private StorageReference userProfileImageRef;
+    private ProgressDialog loadingBar;
+
+    private Toolbar mToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +104,13 @@ public class settingActivity extends AppCompatActivity {
         userName = findViewById(R.id.set_user_name);
         userStatus = findViewById(R.id.set_status);
         userProfile = findViewById(R.id.profile_image);
+        loadingBar = new ProgressDialog(this);
+
+        mToolbar = findViewById(R.id.setting_toolbar);
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setTitle("Setting");
     }
 
 
@@ -120,31 +134,74 @@ public class settingActivity extends AppCompatActivity {
 
             if(resultCode == RESULT_OK)
             {
+
+                loadingBar.setTitle("Image saving...");
+                loadingBar.setMessage("Please wait...");
+                loadingBar.setCanceledOnTouchOutside(true);
+                loadingBar.show();
+
                 final Uri resultUri = result.getUri();
 
                //StorageReference filePath = userProfileImageRef.child(currentUserID + ".jpg");
-                StorageReference filePath = userProfileImageRef.child(currentUserID+".jpg");
+                final StorageReference filePath = userProfileImageRef.child(currentUserID+".jpg");
 
-                filePath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                UploadTask uploadTask = filePath.putFile(resultUri);
+                uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task)
-                    {
-                        if (task.isSuccessful())
-                        {
-                            userProfile.setImageURI(resultUri);
-                            Toast.makeText(getApplicationContext(),"Profile Image Uploaded...", Toast.LENGTH_SHORT).show();
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        filePath.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Uri> task) {
+                                if (task.isSuccessful())
+                                {
+                                    userProfile.setImageURI(resultUri);
+                                    Toast.makeText(getApplicationContext(),"Profile Image Uploaded...", Toast.LENGTH_SHORT).show();
 
-                            //final StorageReference downloadedUrl = task.getResult().getStorage();
+                                    //final StorageReference downloadedUrl = task.getResult().getStorage();
+
+                            final String downloadUrl1 = task.getResult().toString();
+//                            String downloadUrl1 = filePath.getDownloadUrl().getResult().toString();
+
+                                    RootRef.child("Users").child(currentUserID).child("images")
+                                            .setValue(downloadUrl1)
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task)
+                                                {
+                                                    if (task.isSuccessful())
+                                                    {
+                                                        Toast.makeText(settingActivity.this,"Image saved is in database", Toast.LENGTH_SHORT).show();
+                                                        loadingBar.dismiss();
+                                                    }
+                                                    else
+                                                    {
+                                                        String message = task.getException().toString();
+                                                        Toast.makeText(settingActivity.this,"Error :" + message, Toast.LENGTH_SHORT).show();
+                                                        loadingBar.dismiss();
+                                                    }
+                                                }
+                                            });
 
 
-                        }
-                        else
-                        {
-                            String message = task.getException().toString();
-                            Toast.makeText(getApplicationContext(),"Error : " + message, Toast.LENGTH_SHORT).show();
-                        }
+                                }
+                                else
+                                {
+                                    String message = task.getException().toString();
+                                    Toast.makeText(getApplicationContext(),"Error : " + message, Toast.LENGTH_SHORT).show();
+                                    loadingBar.dismiss();
+                                }
+                            }
+                        });
                     }
                 });
+
+//                filePath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task)
+//                    {
+//
+//                    }
+//                });
 
             }
 
@@ -200,15 +257,16 @@ public class settingActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot)
                     {
-                        if ((dataSnapshot.exists()) && (dataSnapshot.hasChild("name") && (dataSnapshot.hasChild("image"))))
+                        if ((dataSnapshot.exists()) && (dataSnapshot.hasChild("name") && (dataSnapshot.hasChild("images"))))
                         {
                             String retrieveUserName = dataSnapshot.child("name").getValue().toString();
                             String retrieveUserStatus = dataSnapshot.child("status").getValue().toString();
-                            String retrieveProfileImage = dataSnapshot.child("image").getValue().toString();
+                            String retrieveProfileImage = dataSnapshot.child("images").getValue().toString();
 
 
                             userName.setText(retrieveUserName);
                             userStatus.setText(retrieveUserStatus);
+                            Picasso.get().load(retrieveProfileImage).into(userProfile);
 
                         }
                         else if ((dataSnapshot.exists()) && (dataSnapshot.hasChild("name")))
