@@ -64,6 +64,37 @@
 
               />
 
+          <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="horizontal">
+
+              <Button
+                  android:id="@+id/request_accept_btn"
+                  android:layout_width="wrap_content"
+                  android:layout_height="30dp"
+                  android:text="Accept"
+                  android:textAllCaps="false"
+                  android:textSize="16dp"
+                    android:background="@android:color/holo_green_light"
+                  android:textColor="@android:color/background_light"
+                  android:visibility="invisible"
+                  />
+
+              <Button
+                  android:id="@+id/request_reject_btn"
+                  android:layout_width="wrap_content"
+                  android:layout_height="30dp"
+                  android:text="Reject"
+                  android:textAllCaps="false"
+                  android:textSize="16dp"
+                  android:background="@android:color/holo_red_dark"
+                  android:textColor="@android:color/background_light"
+                  android:layout_marginLeft="20dp"
+                  android:visibility="invisible"
+                  />
+          </LinearLayout>
+
       </LinearLayout>
 
     </LinearLayout>

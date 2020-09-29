@@ -20,6 +20,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -49,6 +50,7 @@ public class settingActivity extends AppCompatActivity {
     private static final int galleryPic = 1;
     private StorageReference userProfileImageRef;
     private ProgressDialog loadingBar;
+    FirebaseUser user;
 
     private Toolbar mToolbar;
 
@@ -58,7 +60,10 @@ public class settingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_setting);
 
         mAuth = FirebaseAuth.getInstance();
-        currentUserID = mAuth.getCurrentUser().getUid();
+        user = mAuth.getCurrentUser();
+        if (user != null) {
+            currentUserID = user.getUid();
+        }
         RootRef = FirebaseDatabase.getInstance().getReference();
         userProfileImageRef = FirebaseStorage.getInstance().getReference().child("Profile Images");
 
@@ -223,11 +228,11 @@ public class settingActivity extends AppCompatActivity {
         }
         else
         {
-            HashMap<String, String> profileMap = new HashMap<>();
+            HashMap<String, Object> profileMap = new HashMap<>();
                 profileMap.put("uid", currentUserID);
                 profileMap.put("name", setUserName);
                 profileMap.put("status", setUserStatus);
-            RootRef.child("Users").child(currentUserID).setValue(profileMap)
+            RootRef.child("Users").child(currentUserID).updateChildren(profileMap)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task)
