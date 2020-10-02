@@ -1,8 +1,5 @@
 package com.example.chatpro;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,9 +7,11 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -20,6 +19,9 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
+
+import java.io.IOException;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -91,7 +93,16 @@ public class RegisterActivity extends AppCompatActivity {
                                 if(task.isSuccessful())
                                 {
                                     String currentUserID = mAuth.getCurrentUser().getUid();
+                                    String deviceToken = null;
+                                    try {
+                                        deviceToken = FirebaseInstanceId.getInstance().getToken(currentUserID, "FCM");
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
                                     RootRef.child("Users").child(currentUserID).setValue("");
+
+                                    RootRef.child("Users").child(currentUserID).child("device_token")
+                                            .setValue(deviceToken);
 
                                     SendUserToMainActivity();
                                     Toast.makeText(RegisterActivity.this,"Account Created", Toast.LENGTH_SHORT).show();
