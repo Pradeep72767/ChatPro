@@ -1,13 +1,5 @@
 package com.example.chatpro;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -15,9 +7,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -85,8 +84,6 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
-
-
     private void InitilizeControllers()
     {
 
@@ -112,6 +109,42 @@ public class ChatActivity extends AppCompatActivity {
         userMessageList = findViewById(R.id.private_chat_message_list);
         linearLayoutManager = new LinearLayoutManager(this);
 
+    }
+
+    private void DisplayLastSeen()
+    {
+        RootRef.child("Users").child(messageSenderID)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+                    {
+                        if (dataSnapshot.child("userStatus").hasChild("state"))
+                        {
+                            String state = dataSnapshot.child("userStatus").child("state").getValue().toString();
+                            String date = dataSnapshot.child("userStatus").child("date").getValue().toString();
+                            String time = dataSnapshot.child("userStatus").child("time").getValue().toString();
+
+                            if (state.equals("online"))
+                            {
+                                userLastSeen.setText("online");
+                            }
+                            else if (state.equals("offline"))
+                            {
+                                userLastSeen.setText("Last seen :" + date + " " + time);
+                            }
+                        }
+                        else
+                        {
+                            userLastSeen.setText("offline");
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error)
+                    {
+
+                    }
+                });
     }
 
     @Override

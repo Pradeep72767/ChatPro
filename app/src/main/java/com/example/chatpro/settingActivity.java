@@ -1,11 +1,5 @@
 package com.example.chatpro;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -15,6 +9,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -78,7 +77,11 @@ public class settingActivity extends AppCompatActivity {
             }
         });
 
-        RetrieveUserInfo();
+        if (user == null){
+            SendUserToMainActivity();
+        } else {
+            RetrieveUserInfo();
+        }
 
         userProfile.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -239,7 +242,6 @@ public class settingActivity extends AppCompatActivity {
                         {
                             if (task.isSuccessful())
                             {
-
                                 Toast.makeText(settingActivity.this, "Profile Updated", Toast.LENGTH_SHORT).show();
                                 SendUserToMainActivity();
                             }

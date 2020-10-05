@@ -121,7 +121,7 @@ public class ProfileActivity extends AppCompatActivity {
                                     @Override
                                     public void onClick(View view)
                                     {
-                                        cancelCahtRequest();
+                                        cancelChatRequest();
                                     }
                                 });
                             }
@@ -175,11 +175,11 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                     if (Current_state.equals("request_sent"))
                     {
-                        cancelCahtRequest();
+                        cancelChatRequest();
                     }
                     if (Current_state.equals("request_received"))
                     {
-                        acceptCahtRequest();
+                        acceptChatRequest();
                     }
                     if (Current_state.equals("friends"))
                     {
@@ -227,7 +227,7 @@ public class ProfileActivity extends AppCompatActivity {
                 });
     }
 
-    private void acceptCahtRequest()
+    private void acceptChatRequest()
     {
         ContactRef.child(senderUserID).child(receiverUserId)
                 .child("Contacts").setValue("Saved")
@@ -282,7 +282,7 @@ public class ProfileActivity extends AppCompatActivity {
                 });
     }
 
-    private void cancelCahtRequest()
+    private void cancelChatRequest()
     {
         ChatRequestRef.child(senderUserID).child(receiverUserId)
                 .removeValue()

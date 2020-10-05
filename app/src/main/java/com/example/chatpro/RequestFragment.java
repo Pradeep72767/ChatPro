@@ -2,6 +2,7 @@ package com.example.chatpro;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,7 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -40,6 +42,7 @@ public class RequestFragment extends Fragment {
     private DatabaseReference ChatRequestRef, UserRef, ContactRef;
     private FirebaseAuth mAuth;
     private String currentUserID;
+    FirebaseUser user;
 
     ImageView no_req_image;
 
@@ -48,20 +51,26 @@ public class RequestFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        user = FirebaseAuth.getInstance().getCurrentUser();
         requestFragmentView =  inflater.inflate(R.layout.fragment_request, container, false);
+        if (user == null){
+            Intent loginIntent = new Intent(getContext(), LoginActivity.class);
+            loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(loginIntent);
+        }else {
+            mAuth = FirebaseAuth.getInstance();
+            currentUserID = mAuth.getCurrentUser().getUid();
 
-        mAuth = FirebaseAuth.getInstance();
-        currentUserID = mAuth.getCurrentUser().getUid();
+            UserRef = FirebaseDatabase.getInstance().getReference().child("Users");
+            ChatRequestRef = FirebaseDatabase.getInstance().getReference().child("Chat Requests");
+            ContactRef = FirebaseDatabase.getInstance().getReference().child("Contacts");
 
-        UserRef = FirebaseDatabase.getInstance().getReference().child("Users");
-        ChatRequestRef = FirebaseDatabase.getInstance().getReference().child("Chat Requests");
-        ContactRef = FirebaseDatabase.getInstance().getReference().child("Contacts");
-
-        myRequestList = requestFragmentView.findViewById(R.id.chat_request_list);
-        myRequestList.setLayoutManager(new LinearLayoutManager(getContext()));
+            myRequestList = requestFragmentView.findViewById(R.id.chat_request_list);
+            myRequestList.setLayoutManager(new LinearLayoutManager(getContext()));
 
 
-        no_req_image = requestFragmentView.findViewById(R.id.no_request_image);
+            no_req_image = requestFragmentView.findViewById(R.id.no_request_image);
+        }
 
 
         return requestFragmentView;
@@ -206,6 +215,93 @@ public class RequestFragment extends Fragment {
                                                                                                         if (task.isSuccessful())
                                                                                                         {
                                                                                                             Toast.makeText(getContext(), "Chat Request Deleted", Toast.LENGTH_SHORT).show();
+                                                                                                        }
+
+                                                                                                    }
+                                                                                                });
+                                                                                    }
+
+                                                                                }
+                                                                            });
+                                                                }
+
+                                                            }
+                                                        });
+
+                                                        builder.show();
+                                                    }
+                                                });
+                                            }
+
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError databaseError)
+                                            {
+
+                                            }
+                                        });
+                                    }
+                                    else if (type.equals("sent"))
+                                    {
+                                        Button request_sent_btn = requestViewHolder.itemView.findViewById(R.id.request_accept_btn);
+                                        request_sent_btn.setText("Request sent");
+
+
+                                        requestViewHolder.itemView.findViewById(R.id.request_reject_btn).setVisibility(View.INVISIBLE);
+
+
+                                        UserRef.child(list_user_id).addValueEventListener(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+                                            {
+                                                if (dataSnapshot.hasChild("images"))
+                                                {
+
+                                                    String requestProfileImage = dataSnapshot.child("images").getValue().toString();
+
+
+                                                    Picasso.get().load(requestProfileImage).placeholder(R.drawable.profile_image).into(requestViewHolder.profileImage);
+                                                }
+                                                final String requestUserName = dataSnapshot.child("name").getValue().toString();
+                                                String requestUserStatus = dataSnapshot.child("status").getValue().toString();
+
+                                                requestViewHolder.userName.setText(requestUserName);
+                                                requestViewHolder.userStatus.setText("You have send request to " + requestUserName);
+
+                                                requestViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View view)
+                                                    {
+                                                        CharSequence option[] = new CharSequence[]
+                                                                {
+                                                                        "Cancel Chat Request"
+                                                                };
+                                                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                                                        builder.setTitle("Already sent request");
+
+                                                        builder.setItems(option, new DialogInterface.OnClickListener() {
+                                                            @Override
+                                                            public void onClick(DialogInterface dialogInterface, int i)
+                                                            {
+
+                                                                if (i == 0)
+                                                                {
+                                                                    ChatRequestRef.child(currentUserID).child(list_user_id)
+                                                                            .removeValue()
+                                                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                @Override
+                                                                                public void onComplete(@NonNull Task<Void> task)
+                                                                                {
+                                                                                    if (task.isSuccessful())
+                                                                                    {
+                                                                                        ChatRequestRef.child(list_user_id).child(currentUserID)
+                                                                                                .removeValue()
+                                                                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                                    @Override
+                                                                                                    public void onComplete(@NonNull Task<Void> task)
+                                                                                                    {
+                                                                                                        if (task.isSuccessful())
+                                                                                                        {
+                                                                                                            Toast.makeText(getContext(), "You Cancel Chat Request", Toast.LENGTH_SHORT).show();
                                                                                                         }
 
                                                                                                     }
