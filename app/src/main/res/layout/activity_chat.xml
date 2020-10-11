@@ -21,7 +21,7 @@
         android:layout_above="@+id/chat_linear_layout"
         ></androidx.recyclerview.widget.RecyclerView>
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/chat_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -31,12 +31,27 @@
         android:orientation="horizontal"
         android:layout_alignParentLeft="true">
 
+        <ImageButton
+            android:id="@+id/send_file_button"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/send_files"
+
+            android:layout_alignParentLeft="true"
+            android:backgroundTint="@android:color/white"
+            />
+
         <EditText
             android:id="@+id/input_mesage"
-            android:layout_width="330dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Message..."
             android:padding="15dp"
+            android:maxLines="5"
+
+            android:layout_toRightOf="@+id/send_file_button"
+            android:layout_toLeftOf="@+id/send_message_button"
+
             />
 
         <ImageButton
@@ -44,9 +59,10 @@
             android:layout_width="78dp"
             android:layout_height="50dp"
             android:src="@drawable/send_message"
-            />
+            android:backgroundTint="@android:color/white"
+            android:layout_alignParentRight="true" />
 
-    </LinearLayout>
+    </RelativeLayout>
 
 
 </RelativeLayout>

@@ -74,7 +74,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if ((dataSnapshot.child("name").exists())) {
-                    Toast.makeText(HomeActivity.this, "Welcome to ChatPro", Toast.LENGTH_SHORT).show();
+                   //Toast.makeText(HomeActivity.this, "Welcome to ChatPro", Toast.LENGTH_SHORT).show();
                 } else {
                     SendUserToSettingActivity();
                 }
@@ -91,6 +91,8 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
+        Toast.makeText(HomeActivity.this, "Welcome to ChatPro", Toast.LENGTH_SHORT).show();
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null)
