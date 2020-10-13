@@ -1,15 +1,15 @@
 package com.example.chatpro;
 
 import android.os.Bundle;
-import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.github.chrisbanes.photoview.PhotoView;
 import com.squareup.picasso.Picasso;
 
 public class ImageViewerActivity extends AppCompatActivity {
 
-    private ImageView imageView;
+    private PhotoView imageView;
     private String imageUrl;
 
     @Override

@@ -105,12 +105,13 @@ public class RequestFragment extends Fragment {
                             {
                                 if (dataSnapshot.exists())
                                 {
+                                    myRequestList.setVisibility(View.VISIBLE);
+                                    no_req_image.setVisibility(View.GONE);
                                     String type = dataSnapshot.getValue().toString();
 
                                     if (type.equals("received"))
                                     {
-                                        myRequestList.setVisibility(View.VISIBLE);
-                                        no_req_image.setVisibility(View.GONE);
+
                                         UserRef.child(list_user_id).addValueEventListener(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(@NonNull DataSnapshot dataSnapshot)
@@ -332,6 +333,9 @@ public class RequestFragment extends Fragment {
                                         no_req_image.setVisibility(View.VISIBLE);
                                         myRequestList.setVisibility(View.GONE);
                                     }
+                                } else {
+                                    no_req_image.setVisibility(View.VISIBLE);
+                                    myRequestList.setVisibility(View.GONE);
                                 }
                             }
 

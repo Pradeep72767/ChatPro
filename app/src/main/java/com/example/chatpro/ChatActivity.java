@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -29,6 +30,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -74,6 +76,8 @@ public class ChatActivity extends AppCompatActivity {
     private StorageTask uploadTask;
     private Uri fileUri;
     private ProgressDialog loadingBar;
+    private FirebaseUser currentUser;
+    private String userId;
 
     ChildEventListener showMessageChildEventListener;
 
@@ -84,8 +88,10 @@ public class ChatActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         messageSenderID = mAuth.getCurrentUser().getUid();
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         RootRef = FirebaseDatabase.getInstance().getReference();
+        userId = currentUser.getUid();
 
         messageReceiveID = getIntent().getExtras().get("visit_user_id").toString();
         messageReceiveName = getIntent().getExtras().get("visit_user_name").toString();
@@ -110,7 +116,6 @@ public class ChatActivity extends AppCompatActivity {
             public void onClick(View view) {
                 CharSequence options[] = new CharSequence[]
                         {
-
                                 "Image",
                                 "Pdf files",
                                 "Word files"
@@ -375,9 +380,27 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (currentUser != null){
+            updateUserStatus("online");
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (currentUser != null)
+        {
+            updateUserStatus("offline");
+        }
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
 
+        messageList.clear();
         showMessageChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -468,5 +491,28 @@ public class ChatActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void updateUserStatus(String state)
+    {
+        String saveCurrentTime, saveCurrentDate;
+
+        Calendar calendar = Calendar.getInstance();
+
+        SimpleDateFormat currentDate = new SimpleDateFormat("dd MMM, yyyy");
+        saveCurrentDate = currentDate.format(calendar.getTime());
+
+        Log.d("me", "THis comes in online part1\n\n\n\n\n");
+        SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm a");
+        saveCurrentTime = currentTime.format(calendar.getTime());
+
+//        HashMap<String, Object> onlinestate = new HashMap<>();
+//        onlinestate.put("time", saveCurrentTime);
+//        onlinestate.put("date", saveCurrentDate);
+//        onlinestate.put("state", state);
+        Log.d("me", "Current user id is : "+userId);
+
+        RootRef.child("Users").child(userId).child("userStatus").child("state").setValue(state);
+        Log.d("me", "THis comes in online part3\n\n\n\n\n");
     }
 }

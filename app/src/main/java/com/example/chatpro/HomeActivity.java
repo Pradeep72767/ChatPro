@@ -37,7 +37,6 @@ public class HomeActivity extends AppCompatActivity {
     private TabLayout mTabLayout;
     private TabsAccessorAdapter tabsAccessorAdapter;
 
-
     private FirebaseAuth mAuth;
     private DatabaseReference Rootref;
 
@@ -110,15 +109,19 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop()
-    {
-        super.onStop();
-
+    protected void onPause() {
+        super.onPause();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null)
         {
             updateUserStatus("offline");
         }
+    }
+
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
     }
 
 

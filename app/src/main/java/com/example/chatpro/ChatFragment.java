@@ -82,7 +82,7 @@ public class ChatFragment extends Fragment {
 //        Log.d("me", "It came before adapter in onstart");
         adapter = new FirebaseRecyclerAdapter<Contacts, ChatViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull final ChatViewHolder chatViewHolder, int i, @NonNull Contacts contacts)
+            protected void onBindViewHolder(@NonNull final ChatViewHolder chatViewHolder, final int i, @NonNull Contacts contacts)
             {
                 Log.d("me", "It is inside the onBindViewHolder");
                 userIDs = getRef(i).getKey();
@@ -90,7 +90,7 @@ public class ChatFragment extends Fragment {
 
                 UserRef.child(getRef(i).getKey()).addValueEventListener(new ValueEventListener() {
                     @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+                    public void onDataChange(@NonNull final DataSnapshot dataSnapshot)
                     {
                         if (dataSnapshot.exists())
                         {
@@ -134,9 +134,13 @@ public class ChatFragment extends Fragment {
                                 public void onClick(View view)
                                 {
                                     Intent chatIntent = new Intent(getContext(), ChatActivity.class);
-                                    chatIntent.putExtra("visit_user_id", userIDs);
+                                    chatIntent.putExtra("visit_user_id", getRef(i).getKey());
                                     chatIntent.putExtra("visit_user_name", retName);
-                                    chatIntent.putExtra("visit_user_image", retImage[0]);
+                                    try {
+                                        chatIntent.putExtra("visit_user_image", dataSnapshot.child("images").getValue().toString());
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
                                     startActivity(chatIntent);
                                 }
                             });
