@@ -136,6 +136,13 @@ public class ContactFragment extends Fragment {
                             }
 
                         });
+
+//                        contactViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View view) {
+////                                Snackbar.make(view, "Item is clicked", BaseTransientBottomBar.LENGTH_SHORT).show();
+//                            }
+//                        });
                     }
 
                     @NonNull
