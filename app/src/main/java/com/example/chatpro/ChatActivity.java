@@ -98,14 +98,31 @@ public class ChatActivity extends AppCompatActivity {
         RootRef = FirebaseDatabase.getInstance().getReference();
         userId = currentUser.getUid();
 
+
+
         messageReceiveID = getIntent().getExtras().get("visit_user_id").toString();
         messageReceiveName = getIntent().getExtras().get("visit_user_name").toString();
-        messageReceiveImage = getIntent().getExtras().get("visit_user_image").toString();
+
+        try {
+            messageReceiveImage = getIntent().getExtras().get("visit_user_image").toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         InitilizeControllers();
 
         userName.setText(messageReceiveName);
-        Picasso.get().load(messageReceiveImage).placeholder(R.drawable.profile_image).into(userImage);
+
+        if (messageReceiveImage != null)
+        {
+
+            Picasso.get().load(R.drawable.profile_image).into(userImage);
+        }
+        else
+        {
+            Picasso.get().load(messageReceiveImage).placeholder(R.drawable.profile_image).into(userImage);
+        }
+
 
         sendMessage.setOnClickListener(new View.OnClickListener() {
             @Override
